@@ -20,12 +20,17 @@ document.addEventListener('DOMContentLoaded', () => {
         outputSection.classList.add('hidden');
 
         try {
-            const response = await fetch('/api/rephrase', {
+            // Using corsproxy.io to bypass CORS restrictions for the static app
+            const response = await fetch('https://corsproxy.io/?https://promptperfect.xyz/rephrase_extension', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ text })
+                body: JSON.stringify({
+                    text: text,
+                    userId: "",
+                    stripeCustomerId: ""
+                })
             });
 
             if (!response.ok) {
@@ -34,7 +39,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
 
-            if (data.rephrased && data.rephrased.text) {
+            if (data.text) {
+                outputContent.textContent = data.text;
+                outputSection.classList.remove('hidden');
+                // Scroll to output
+                outputSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else if (data.rephrased && data.rephrased.text) {
                 outputContent.textContent = data.rephrased.text;
                 outputSection.classList.remove('hidden');
                 // Scroll to output
